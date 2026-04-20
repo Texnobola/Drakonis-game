@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://c8yv3qm2xh4wf"]
+[gd_scene load_steps=11 format=3 uid="uid://c8yv3qm2xh4wf"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_x5k3m"]
+[ext_resource type="Script" path="res://crosshair.gd" id="2_cross"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
 
@@ -60,8 +61,14 @@ mesh = SubResource("CapsuleMesh_player")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 shape = SubResource("CapsuleShape3D_player")
 
-[node name="Camera3D" type="Camera3D" parent="Player"]
-transform = Transform3D(0.984808, -0.0868241, 0.150384, 0, 0.866025, 0.5, -0.173648, -0.492404, 0.852869, 0, 2, 5)
+[node name="CameraPivot" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraPivot"]
+spring_length = 5.0
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot/SpringArm3D"]
 fov = 75.0
 
 [node name="Level" type="Node3D" parent="."]
@@ -143,3 +150,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 11)
 use_collision = true
 size = Vector3(3, 0.5, 3)
 material = SubResource("StandardMaterial3D_platform")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Crosshair" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_cross")
