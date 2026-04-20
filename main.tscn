@@ -1,11 +1,24 @@
-[gd_scene load_steps=11 format=3 uid="uid://c8yv3qm2xh4wf"]
+[gd_scene load_steps=19 format=3 uid="uid://c8yv3qm2xh4wf"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_x5k3m"]
 [ext_resource type="Script" path="res://crosshair.gd" id="2_cross"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+[ext_resource type="Script" path="res://checkpoint.gd" id="3_check"]
+[ext_resource type="Script" path="res://footstep_audio.gd" id="4_audio"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player_body"]
+albedo_color = Color(0.3, 0.5, 0.8, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.4
+height = 1.6
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.3
+height = 0.6
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.385, 0.454, 0.55, 1)
@@ -39,6 +52,27 @@ albedo_color = Color(0.6, 0.55, 0.5, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_platform"]
 albedo_color = Color(0.5, 0.4, 0.35, 1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_checkpoint"]
+size = Vector3(2, 3, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dash_particle"]
+transparency = 1
+albedo_color = Color(0.3, 0.7, 1, 1)
+emission_enabled = true
+emission = Color(0.5, 0.8, 1, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dash"]
+emission_shape = 1
+emission_sphere_radius = 0.3
+direction = Vector3(0, 0, -1)
+spread = 25.0
+initial_velocity_min = 3.0
+initial_velocity_max = 6.0
+gravity = Vector3(0, -1, 0)
+scale_min = 0.2
+scale_max = 0.5
+
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -51,18 +85,28 @@ shadow_enabled = true
 shadow_bias = 0.05
 directional_shadow_mode = 1
 
-[node name="Player" type="CharacterBody3D" parent="."]
+[node name="Player" type="CharacterBody3D" parent="." groups=["player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 script = ExtResource("1_x5k3m")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
-mesh = SubResource("CapsuleMesh_player")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_player")
 
+[node name="MeshInstance3D" type="Node3D" parent="Player"]
+
+[node name="Body" type="MeshInstance3D" parent="Player/MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("StandardMaterial3D_player_body")
+
+[node name="Head" type="MeshInstance3D" parent="Player/MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_player_body")
+
 [node name="CameraPivot" type="Node3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraPivot"]
 spring_length = 5.0
@@ -70,6 +114,25 @@ margin = 0.2
 
 [node name="Camera3D" type="Camera3D" parent="Player/CameraPivot/SpringArm3D"]
 fov = 75.0
+
+[node name="FootstepTimer" type="Timer" parent="Player"]
+wait_time = 0.5
+one_shot = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Player"]
+volume_db = 3.0
+max_distance = 50.0
+script = ExtResource("4_audio")
+
+[node name="DashParticles" type="GPUParticles3D" parent="Player"]
+emitting = false
+amount = 40
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+local_coords = false
+process_material = SubResource("ParticleProcessMaterial_dash")
+draw_pass_1 = SubResource("CapsuleMesh_body")
 
 [node name="Level" type="Node3D" parent="."]
 
@@ -150,6 +213,77 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 11)
 use_collision = true
 size = Vector3(3, 0.5, 3)
 material = SubResource("StandardMaterial3D_platform")
+
+[node name="DeathZone" type="Area3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/DeathZone"]
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="Checkpoints" type="Node3D" parent="."]
+
+[node name="Checkpoint1" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = ExtResource("3_check")
+checkpoint_id = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint2" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2, -8)
+script = ExtResource("3_check")
+checkpoint_id = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint3" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 8)
+script = ExtResource("3_check")
+checkpoint_id = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
 
 [node name="UI" type="CanvasLayer" parent="."]
 
