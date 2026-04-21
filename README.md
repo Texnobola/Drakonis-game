@@ -3,7 +3,7 @@
 ## New Features Implemented
 
 ### 1. SPRINT & CROUCH
-- **Sprint**: Hold Shift to run faster (8.0 speed vs 5.0 walk speed)
+- **Sprint**: Double-tap W to toggle sprint (8.0 speed vs 5.0 walk speed)
 - **Crouch**: Hold Ctrl to crouch (reduces height by 50%, slower movement at 2.5 speed)
 - **FOV Effects**: Camera FOV increases when sprinting, decreases when crouching
 - **Ceiling Detection**: Can't stand up if there's something above you
@@ -36,7 +36,7 @@
 
 ### Movement
 - **W/A/S/D** - Move (camera-relative)
-- **Shift** - Sprint
+- **Double-tap W** - Toggle Sprint
 - **Ctrl** - Crouch
 - **Space** - Jump / Double Jump
 - **E** - Air Dash (while airborne)
@@ -56,9 +56,10 @@
 6. `project.godot` - Added new input actions and autoload
 
 ### New Input Actions
-- `sprint` - Shift key
 - `crouch` - Ctrl key
 - `air_dash` - E key
+
+Note: Sprint is activated by double-tapping the `move_forward` (W) key within 0.3 seconds.
 
 ### Player Stats
 - Walk Speed: 5.0
@@ -71,12 +72,24 @@
 
 ## How to Test
 
-1. **Close Godot** (if open)
-2. **Reopen the project**
-3. **Press F5** to run
-4. Try all the new movement abilities!
-5. Walk through checkpoints to activate them
-6. Jump off the edge to test respawn system
+### Running the Game:
+1. **Open Godot** and load the Drakonis project
+2. **Press F5** to run
+3. Try all the movement abilities!
+4. Walk through checkpoints to activate them
+5. Jump off the edge to test respawn system
+
+### Optional - Improve Character Animations:
+The game uses UAL1_Standard.glb character model. For better animation support:
+1. **In FileSystem**, double-click `UAL1_Standard.glb`
+2. **In Scene tree** (top-right), click on `Skeleton3D` (under Armature)
+3. **In Import panel** (right side):
+   - Find "Retarget" → "Bone Map" → click `<empty>`
+   - Click "New BoneMap"
+   - Find "Profile" → click `<empty>`  
+   - Click "New SkeletonProfileHumanoid"
+4. **Click "Reimport"** at bottom of Import panel
+5. This enables proper animation retargeting
 
 ## Next Steps
 

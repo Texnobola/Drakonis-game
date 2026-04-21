@@ -1,0 +1,58 @@
+[gd_scene load_steps=8 format=3 uid="uid://animated_player"]
+
+[ext_resource type="PackedScene" uid="uid://ual1_animations" path="res://UAL1_Standard.glb" id="1_model"]
+[ext_resource type="Script" path="res://player.gd" id="2_script"]
+[ext_resource type="Script" path="res://footstep_audio.gd" id="3_foot"]
+[ext_resource type="Script" path="res://jump_audio.gd" id="4_jump"]
+[ext_resource type="Script" path="res://land_audio.gd" id="5_land"]
+[ext_resource type="Script" path="res://dash_audio.gd" id="6_dash"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.4
+height = 1.8
+
+[node name="AnimatedPlayer" type="CharacterBody3D" groups=["player"]]
+script = ExtResource("2_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+spring_length = 5.0
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+fov = 75.0
+
+[node name="FootstepTimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+volume_db = 4.0
+max_distance = 50.0
+script = ExtResource("3_foot")
+
+[node name="JumpAudio" type="AudioStreamPlayer3D" parent="."]
+script = ExtResource("4_jump")
+
+[node name="LandAudio" type="AudioStreamPlayer3D" parent="."]
+script = ExtResource("5_land")
+
+[node name="DashAudio" type="AudioStreamPlayer3D" parent="."]
+script = ExtResource("6_dash")
+
+[node name="DashParticles" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 50
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+local_coords = false

@@ -1,0 +1,359 @@
+[gd_scene format=3 uid="uid://city_scene"]
+
+[ext_resource type="Script" uid="uid://cs65uhbrsdmb6" path="res://player.gd" id="1_x5k3m"]
+[ext_resource type="Script" uid="uid://48trnqcq8xvr" path="res://crosshair.gd" id="2_cross"]
+[ext_resource type="Script" uid="uid://dlgr5sgppabxq" path="res://checkpoint.gd" id="3_check"]
+[ext_resource type="Script" uid="uid://g4ed57xwghl" path="res://footstep_audio.gd" id="4_audio"]
+[ext_resource type="Script" uid="uid://cxkq0lhga7drx" path="res://jump_audio.gd" id="5_jump"]
+[ext_resource type="Script" uid="uid://1vgd46l1ctxj" path="res://land_audio.gd" id="6_land"]
+[ext_resource type="Script" uid="uid://dueewj167q43t" path="res://dash_audio.gd" id="7_dash"]
+[ext_resource type="AudioStream" uid="uid://6jsqb2gq08bw" path="res://background_music.mp3" id="8_music"]
+[ext_resource type="PackedScene" uid="uid://cyis4t47sb42s" path="res://UAL1_Standard.glb" id="9_model"]
+[ext_resource type="Script" path="res://player_animation_controller.gd" id="10_anim"]
+[ext_resource type="Script" path="res://emote_system.gd" id="11_emote"]
+[ext_resource type="Script" path="res://camera_switcher.gd" id="12_camera"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.3, 0.4, 0.6, 1)
+sky_horizon_color = Color(0.6, 0.5, 0.5, 1)
+ground_horizon_color = Color(0.5, 0.5, 0.5, 1)
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.7, 0.8, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.6, 0.6, 0.7, 1)
+fog_density = 0.005
+fog_aerial_perspective = 0.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dash"]
+emission_shape = 1
+emission_sphere_radius = 0.3
+direction = Vector3(0, 0, -1)
+spread = 25.0
+initial_velocity_min = 3.0
+initial_velocity_max = 6.0
+gravity = Vector3(0, -1, 0)
+scale_min = 0.2
+scale_max = 0.5
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.4
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_street"]
+albedo_color = Color(0.2, 0.2, 0.22, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_building"]
+albedo_color = Color(0.4, 0.4, 0.45, 1)
+metallic = 0.3
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_building_dark"]
+albedo_color = Color(0.25, 0.25, 0.3, 1)
+metallic = 0.4
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rooftop"]
+albedo_color = Color(0.3, 0.3, 0.35, 1)
+roughness = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_checkpoint"]
+size = Vector3(2, 3, 2)
+
+[node name="City" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0, 20, 0)
+light_energy = 1.0
+shadow_enabled = true
+shadow_bias = 0.05
+directional_shadow_mode = 1
+
+[node name="Player" type="CharacterBody3D" parent="." groups=["player"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+script = ExtResource("1_x5k3m")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="CharacterModel" parent="Player" instance=ExtResource("9_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+
+[node name="CameraPivot" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraPivot"]
+spring_length = 5.0
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot/SpringArm3D"]
+fov = 75.0
+
+[node name="FootstepTimer" type="Timer" parent="Player"]
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Player"]
+volume_db = 4.0
+script = ExtResource("4_audio")
+
+[node name="JumpAudio" type="AudioStreamPlayer3D" parent="Player"]
+script = ExtResource("5_jump")
+
+[node name="LandAudio" type="AudioStreamPlayer3D" parent="Player"]
+script = ExtResource("6_land")
+
+[node name="DashAudio" type="AudioStreamPlayer3D" parent="Player"]
+script = ExtResource("7_dash")
+
+[node name="DashParticles" type="GPUParticles3D" parent="Player"]
+emitting = false
+amount = 50
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_dash")
+draw_pass_1 = SubResource("CapsuleMesh_body")
+
+[node name="AnimationController" type="Node" parent="Player"]
+script = ExtResource("10_anim")
+
+[node name="EmoteSystem" type="Node" parent="Player"]
+script = ExtResource("11_emote")
+
+[node name="CameraSwitcher" type="Node" parent="Player"]
+script = ExtResource("12_camera")
+
+[node name="City" type="Node3D" parent="."]
+
+[node name="Ground" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(100, 1, 100)
+material = SubResource("StandardMaterial3D_street")
+
+[node name="MainStreet" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+use_collision = true
+size = Vector3(10, 0.1, 100)
+material = SubResource("StandardMaterial3D_street")
+
+[node name="CrossStreet1" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 20)
+use_collision = true
+size = Vector3(100, 0.1, 10)
+material = SubResource("StandardMaterial3D_street")
+
+[node name="CrossStreet2" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -20)
+use_collision = true
+size = Vector3(100, 0.1, 10)
+material = SubResource("StandardMaterial3D_street")
+
+[node name="Building1" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 10, 10)
+use_collision = true
+size = Vector3(15, 20, 15)
+material = SubResource("StandardMaterial3D_building")
+
+[node name="Rooftop1" type="CSGBox3D" parent="City/Building1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Building2" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 15, 10)
+use_collision = true
+size = Vector3(15, 30, 15)
+material = SubResource("StandardMaterial3D_building_dark")
+
+[node name="Rooftop2" type="CSGBox3D" parent="City/Building2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Building3" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 12, -15)
+use_collision = true
+size = Vector3(15, 24, 15)
+material = SubResource("StandardMaterial3D_building")
+
+[node name="Rooftop3" type="CSGBox3D" parent="City/Building3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Building4" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 8, -15)
+use_collision = true
+size = Vector3(15, 16, 15)
+material = SubResource("StandardMaterial3D_building_dark")
+
+[node name="Rooftop4" type="CSGBox3D" parent="City/Building4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Building5" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 18, 35)
+use_collision = true
+size = Vector3(15, 36, 15)
+material = SubResource("StandardMaterial3D_building")
+
+[node name="Rooftop5" type="CSGBox3D" parent="City/Building5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Building6" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 14, 35)
+use_collision = true
+size = Vector3(15, 28, 15)
+material = SubResource("StandardMaterial3D_building_dark")
+
+[node name="Rooftop6" type="CSGBox3D" parent="City/Building6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14.5, 0)
+use_collision = true
+size = Vector3(15, 1, 15)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="Skyscraper" type="CSGBox3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25, -40)
+use_collision = true
+size = Vector3(20, 50, 20)
+material = SubResource("StandardMaterial3D_building_dark")
+
+[node name="RooftopSky" type="CSGBox3D" parent="City/Skyscraper"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.5, 0)
+use_collision = true
+size = Vector3(20, 1, 20)
+material = SubResource("StandardMaterial3D_rooftop")
+
+[node name="DeathZone" type="Area3D" parent="City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -20, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="City/DeathZone"]
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="Checkpoints" type="Node3D" parent="."]
+
+[node name="Checkpoint1" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("3_check")
+checkpoint_id = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint2" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 21, 10)
+script = ExtResource("3_check")
+checkpoint_id = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint3" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 31, 10)
+script = ExtResource("3_check")
+checkpoint_id = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint4" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 51, -40)
+script = ExtResource("3_check")
+checkpoint_id = 4
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Crosshair" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_cross")
+
+[node name="AmbientMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_music")
+volume_db = -15.0
+autoplay = true

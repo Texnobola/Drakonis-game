@@ -1,21 +1,27 @@
 extends AudioStreamPlayer3D
 
 func _ready():
-	# Create a simple footstep sound using AudioStreamWAV
 	var sample_rate = 22050
-	var duration = 0.15
+	var duration = 0.12
 	var samples = int(sample_rate * duration)
 	var data = PackedVector2Array()
 	
-	# Generate a louder thump sound with more bass
+	# Generate more realistic footstep with multiple frequency layers
 	for i in range(samples):
 		var t = float(i) / float(sample_rate)
-		var frequency = 80.0
-		var envelope = 1.0 - (float(i) / float(samples))
-		# Much louder - increased from 0.5 to 0.95
-		var value = sin(t * frequency * TAU) * envelope * 0.95
-		# Add some noise for more realistic sound
-		value += (randf() - 0.5) * 0.3 * envelope
+		var envelope = exp(-t * 15.0)  # Sharp attack, quick decay
+		var value = 0.0
+		
+		# Low thump (bass)
+		value += sin(t * 80.0 * TAU) * envelope * 0.4
+		value += sin(t * 120.0 * TAU) * envelope * 0.3
+		
+		# Mid crunch
+		value += sin(t * 250.0 * TAU) * envelope * 0.15
+		
+		# High texture (dirt/gravel sound)
+		value += (randf() - 0.5) * envelope * 0.25
+		
 		data.append(Vector2(value, value))
 	
 	var audio_stream = AudioStreamWAV.new()
@@ -23,7 +29,6 @@ func _ready():
 	audio_stream.mix_rate = sample_rate
 	audio_stream.stereo = true
 	
-	# Convert Vector2Array to byte array
 	var byte_array = PackedByteArray()
 	for sample in data:
 		var left = int(clamp(sample.x * 32767, -32768, 32767))
@@ -33,9 +38,8 @@ func _ready():
 	
 	audio_stream.data = byte_array
 	stream = audio_stream
-	volume_db = 3.0  # Balanced volume
+	volume_db = 4.0
 	max_distance = 50.0
-	unit_size = 1.0
 
 func play_footstep():
 	pitch_scale = randf_range(0.85, 1.15)

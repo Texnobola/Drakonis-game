@@ -1,31 +1,19 @@
-[gd_scene load_steps=19 format=3 uid="uid://c8yv3qm2xh4wf"]
+[gd_scene format=3 uid="uid://c8yv3qm2xh4wf"]
 
-[ext_resource type="Script" path="res://player.gd" id="1_x5k3m"]
-[ext_resource type="Script" path="res://crosshair.gd" id="2_cross"]
-[ext_resource type="Script" path="res://checkpoint.gd" id="3_check"]
-[ext_resource type="Script" path="res://footstep_audio.gd" id="4_audio"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
-radius = 0.4
-height = 2.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player_body"]
-albedo_color = Color(0.3, 0.5, 0.8, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
-radius = 0.4
-height = 1.6
-
-[sub_resource type="SphereMesh" id="SphereMesh_head"]
-radius = 0.3
-height = 0.6
+[ext_resource type="Script" uid="uid://cs65uhbrsdmb6" path="res://player.gd" id="1_x5k3m"]
+[ext_resource type="Script" uid="uid://48trnqcq8xvr" path="res://crosshair.gd" id="2_cross"]
+[ext_resource type="Script" uid="uid://dlgr5sgppabxq" path="res://checkpoint.gd" id="3_check"]
+[ext_resource type="Script" uid="uid://g4ed57xwghl" path="res://footstep_audio.gd" id="4_audio"]
+[ext_resource type="Script" uid="uid://cxkq0lhga7drx" path="res://jump_audio.gd" id="5_jump"]
+[ext_resource type="Script" uid="uid://1vgd46l1ctxj" path="res://land_audio.gd" id="6_land"]
+[ext_resource type="Script" uid="uid://dueewj167q43t" path="res://dash_audio.gd" id="7_dash"]
+[ext_resource type="AudioStream" uid="uid://6jsqb2gq08bw" path="res://background_music.mp3" id="8_music"]
+[ext_resource type="PackedScene" uid="uid://cyis4t47sb42s" path="res://UAL1_Standard.glb" id="9_model"]
+[ext_resource type="Script" path="res://player_animation_controller.gd" id="10_anim"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
-sky_top_color = Color(0.385, 0.454, 0.55, 1)
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
 ground_horizon_color = Color(0.646, 0.656, 0.67, 1)
-sun_angle_max = 30.0
-sun_curve = 0.15
 
 [sub_resource type="Sky" id="Sky_main"]
 sky_material = SubResource("ProceduralSkyMaterial_sky")
@@ -39,28 +27,11 @@ ambient_light_energy = 0.5
 tonemap_mode = 2
 fog_enabled = true
 fog_light_color = Color(0.7, 0.75, 0.85, 1)
-fog_density = 0.01
 fog_aerial_perspective = 0.5
 fog_sky_affect = 0.5
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.4, 0.45, 0.4, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
-albedo_color = Color(0.6, 0.55, 0.5, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_platform"]
-albedo_color = Color(0.5, 0.4, 0.35, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_checkpoint"]
-size = Vector3(2, 3, 2)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dash_particle"]
-transparency = 1
-albedo_color = Color(0.3, 0.7, 1, 1)
-emission_enabled = true
-emission = Color(0.5, 0.8, 1, 1)
-emission_energy_multiplier = 3.0
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dash"]
 emission_shape = 1
@@ -73,169 +44,227 @@ gravity = Vector3(0, -1, 0)
 scale_min = 0.2
 scale_max = 0.5
 
-[node name="Main" type="Node3D"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.4
+height = 1.6
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.25, 0.35, 0.25, 1)
+metallic = 0.2
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
+albedo_color = Color(0.55, 0.5, 0.45, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_platform"]
+albedo_color = Color(0.6, 0.4, 0.3, 1)
+metallic = 0.1
+roughness = 0.7
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_checkpoint"]
+size = Vector3(2, 3, 2)
+
+[node name="Main" type="Node3D" unique_id=1975913334]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=317220401]
 environment = SubResource("Environment_main")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1247751891]
 transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 10, 0)
 light_energy = 1.2
 shadow_enabled = true
 shadow_bias = 0.05
 directional_shadow_mode = 1
 
-[node name="Player" type="CharacterBody3D" parent="." groups=["player"]]
+[node name="Player" type="CharacterBody3D" parent="." unique_id=1971506199 groups=["player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 script = ExtResource("1_x5k3m")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=2016404124]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_player")
 
-[node name="MeshInstance3D" type="Node3D" parent="Player"]
+[node name="CharacterModel" parent="Player" unique_id=92407248 instance=ExtResource("9_model")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
-[node name="Body" type="MeshInstance3D" parent="Player/MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_body")
-surface_material_override/0 = SubResource("StandardMaterial3D_player_body")
-
-[node name="Head" type="MeshInstance3D" parent="Player/MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
-mesh = SubResource("SphereMesh_head")
-surface_material_override/0 = SubResource("StandardMaterial3D_player_body")
-
-[node name="CameraPivot" type="Node3D" parent="Player"]
+[node name="CameraPivot" type="Node3D" parent="Player" unique_id=1506335337]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
-[node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraPivot"]
+[node name="SpringArm3D" type="SpringArm3D" parent="Player/CameraPivot" unique_id=1470957806]
 spring_length = 5.0
 margin = 0.2
 
-[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot/SpringArm3D"]
-fov = 75.0
+[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot/SpringArm3D" unique_id=467995061]
 
-[node name="FootstepTimer" type="Timer" parent="Player"]
+[node name="FootstepTimer" type="Timer" parent="Player" unique_id=1285303616]
 wait_time = 0.5
 one_shot = true
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Player"]
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Player" unique_id=1784197030]
 volume_db = 3.0
 max_distance = 50.0
 script = ExtResource("4_audio")
 
-[node name="DashParticles" type="GPUParticles3D" parent="Player"]
+[node name="JumpAudio" type="AudioStreamPlayer3D" parent="Player" unique_id=1948040939]
+script = ExtResource("5_jump")
+
+[node name="LandAudio" type="AudioStreamPlayer3D" parent="Player" unique_id=402736379]
+script = ExtResource("6_land")
+
+[node name="DashAudio" type="AudioStreamPlayer3D" parent="Player" unique_id=1908442681]
+script = ExtResource("7_dash")
+
+[node name="DashParticles" type="GPUParticles3D" parent="Player" unique_id=1170695201]
 emitting = false
-amount = 40
-lifetime = 0.5
+amount = 50
+lifetime = 0.6
 one_shot = true
 explosiveness = 1.0
-local_coords = false
 process_material = SubResource("ParticleProcessMaterial_dash")
 draw_pass_1 = SubResource("CapsuleMesh_body")
 
-[node name="Level" type="Node3D" parent="."]
+[node name="AnimationController" type="Node" parent="Player"]
+script = ExtResource("10_anim")
 
-[node name="Floor" type="CSGBox3D" parent="Level"]
+[node name="Level" type="Node3D" parent="." unique_id=1581223956]
+
+[node name="Floor" type="CSGBox3D" parent="Level" unique_id=704171118]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 use_collision = true
 size = Vector3(30, 1, 30)
 material = SubResource("StandardMaterial3D_floor")
 
-[node name="WallNorth" type="CSGBox3D" parent="Level"]
+[node name="WallNorth" type="CSGBox3D" parent="Level" unique_id=1337897298]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -15)
 use_collision = true
 size = Vector3(30, 5, 1)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="WallSouth" type="CSGBox3D" parent="Level"]
+[node name="WallSouth" type="CSGBox3D" parent="Level" unique_id=353499863]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 15)
 use_collision = true
 size = Vector3(30, 5, 1)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="WallEast" type="CSGBox3D" parent="Level"]
+[node name="WallEast" type="CSGBox3D" parent="Level" unique_id=1299504098]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 2.5, 0)
 use_collision = true
 size = Vector3(1, 5, 30)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="WallWest" type="CSGBox3D" parent="Level"]
+[node name="WallWest" type="CSGBox3D" parent="Level" unique_id=1074272606]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 2.5, 0)
 use_collision = true
 size = Vector3(1, 5, 30)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="Platform1" type="CSGBox3D" parent="Level"]
+[node name="Platform1" type="CSGBox3D" parent="Level" unique_id=1963744775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.5, -8)
 use_collision = true
 size = Vector3(5, 1, 5)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="Platform2" type="CSGBox3D" parent="Level"]
+[node name="Platform2" type="CSGBox3D" parent="Level" unique_id=1513645709]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2.5, -6)
 use_collision = true
 size = Vector3(4, 1, 4)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="Platform3" type="CSGBox3D" parent="Level"]
+[node name="Platform3" type="CSGBox3D" parent="Level" unique_id=236720317]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 8)
 use_collision = true
 size = Vector3(6, 1, 4)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="Obstacle1" type="CSGBox3D" parent="Level"]
+[node name="Obstacle1" type="CSGBox3D" parent="Level" unique_id=1254940497]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 5)
 use_collision = true
 size = Vector3(2, 2, 2)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="Obstacle2" type="CSGBox3D" parent="Level"]
+[node name="Obstacle2" type="CSGBox3D" parent="Level" unique_id=564543496]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, 0)
 use_collision = true
 size = Vector3(3, 2, 3)
 material = SubResource("StandardMaterial3D_wall")
 
-[node name="Ramp" type="CSGBox3D" parent="Level"]
+[node name="Ramp" type="CSGBox3D" parent="Level" unique_id=1294989129]
 transform = Transform3D(1, 0, 0.5, 0, 1, 0, -0.5, 0, 1, -10, 1, 0)
 use_collision = true
 size = Vector3(6, 0.5, 4)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="StepPlatform1" type="CSGBox3D" parent="Level"]
+[node name="StepPlatform1" type="CSGBox3D" parent="Level" unique_id=1910133273]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.75, 8)
 use_collision = true
 size = Vector3(3, 0.5, 3)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="StepPlatform2" type="CSGBox3D" parent="Level"]
+[node name="StepPlatform2" type="CSGBox3D" parent="Level" unique_id=1533458275]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 11)
 use_collision = true
 size = Vector3(3, 0.5, 3)
 material = SubResource("StandardMaterial3D_platform")
 
-[node name="DeathZone" type="Area3D" parent="Level"]
+[node name="JumpPlatform1" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 3, 5)
+use_collision = true
+size = Vector3(3, 0.5, 3)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="JumpPlatform2" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, 10)
+use_collision = true
+size = Vector3(3, 0.5, 3)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="HighPlatform" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 6, -10)
+use_collision = true
+size = Vector3(4, 0.5, 4)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="BridgePlatform1" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -5)
+use_collision = true
+size = Vector3(2, 0.3, 6)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="BridgePlatform2" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 4.5, 0)
+use_collision = true
+size = Vector3(6, 0.3, 2)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="WallRunPlatform" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 3.5, 3)
+use_collision = true
+size = Vector3(2, 0.5, 8)
+material = SubResource("StandardMaterial3D_platform")
+
+[node name="DeathZone" type="Area3D" parent="Level" unique_id=332521917]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/DeathZone"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/DeathZone" unique_id=1328844148]
 shape = SubResource("BoxShape3D_checkpoint")
 
-[node name="Checkpoints" type="Node3D" parent="."]
+[node name="Checkpoints" type="Node3D" parent="." unique_id=2139698968]
 
-[node name="Checkpoint1" type="Area3D" parent="Checkpoints"]
+[node name="Checkpoint1" type="Area3D" parent="Checkpoints" unique_id=1091656752]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 script = ExtResource("3_check")
 checkpoint_id = 1
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint1"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint1" unique_id=87573887]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_body")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint1"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint1" unique_id=444419647]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_checkpoint")
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint1"]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint1" unique_id=1413280187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 emitting = false
 amount = 20
@@ -243,20 +272,20 @@ lifetime = 0.5
 one_shot = true
 explosiveness = 0.8
 
-[node name="Checkpoint2" type="Area3D" parent="Checkpoints"]
+[node name="Checkpoint2" type="Area3D" parent="Checkpoints" unique_id=532988080]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2, -8)
 script = ExtResource("3_check")
 checkpoint_id = 2
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint2"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint2" unique_id=1485467637]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_body")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint2" unique_id=150644790]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_checkpoint")
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint2"]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint2" unique_id=1086155015]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 emitting = false
 amount = 20
@@ -264,20 +293,20 @@ lifetime = 0.5
 one_shot = true
 explosiveness = 0.8
 
-[node name="Checkpoint3" type="Area3D" parent="Checkpoints"]
+[node name="Checkpoint3" type="Area3D" parent="Checkpoints" unique_id=1186316994]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 8)
 script = ExtResource("3_check")
 checkpoint_id = 3
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint3"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint3" unique_id=514913359]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_body")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint3"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint3" unique_id=374888083]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_checkpoint")
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint3"]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint3" unique_id=497917448]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 emitting = false
 amount = 20
@@ -285,9 +314,51 @@ lifetime = 0.5
 one_shot = true
 explosiveness = 0.8
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="Checkpoint4" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5.5, 10)
+script = ExtResource("3_check")
+checkpoint_id = 4
 
-[node name="Crosshair" type="Control" parent="UI"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="Checkpoint5" type="Area3D" parent="Checkpoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 6.5, -10)
+script = ExtResource("3_check")
+checkpoint_id = 5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Checkpoints/Checkpoint5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Checkpoints/Checkpoint5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_checkpoint")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Checkpoints/Checkpoint5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+emitting = false
+amount = 20
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2070901221]
+
+[node name="Crosshair" type="Control" parent="UI" unique_id=716531195]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -296,3 +367,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_cross")
+
+[node name="AmbientMusic" type="AudioStreamPlayer" parent="." unique_id=1081180555]
+stream = ExtResource("8_music")
+volume_db = -15.0
+autoplay = true
